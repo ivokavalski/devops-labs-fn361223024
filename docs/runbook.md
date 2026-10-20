@@ -1,19 +1,29 @@
-# Runbook
+# Runbook## Стартиране с Docker
 
-> Fill in every TODO with exact commands. / Попълнете всяко TODO с точни команди.
+### Изграждане на образа
+```bash
+docker build -t notes-api:0.3.0 .
+```
 
-## Start locally / Локално стартиране
+### Стартиране
+```bash
+docker run -d --name notes -p 8000:8000 notes-api:0.3.0
+```
+Проверка: отворете `http://localhost:8000/health`.
 
-TODO
+Състояние на healthcheck:
+```bash
+docker inspect --format '{{.State.Health.Status}}' notes
+```
 
-## Check that it works / Проверка, че работи
+### Логове
+```bash
+docker logs notes        # всички досега
+docker logs -f notes     # следене на живо (Ctrl+C за изход)
+```
 
-TODO: which address do you open and what should you see? / кой адрес отваряте и какво трябва да видите?
-
-## Run the tests / Тестове
-
-TODO
-
-## When something breaks / Когато нещо се счупи
-
-TODO: the first three things you check. / първите три неща, които проверявате.
+### Спиране
+```bash
+docker stop notes
+docker rm notes
+```
