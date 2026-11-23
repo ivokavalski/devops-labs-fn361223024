@@ -162,3 +162,35 @@ docker compose config                                         # the file after v
 docker compose exec db psql -U notes -d notes -c "SELECT * FROM notes"
 docker compose --profile tools up -d                          # Adminer on http://localhost:8081 (server: db)
 ```
+
+## Deploy and roll back / Пускане и връщане назад
+
+CI pushes every image to GHCR (`ghcr.io/ivokavalski/devops-labs-fn361223024`). The server builds nothing: `compose.prod.yaml` pulls a ready image. / CI качва всеки образ в GHCR. Сървърът не строи нищо: `compose.prod.yaml` тегли готов образ.
+
+| Tag / Таг | When it appears / Кога се появява |
+|-----------|-----------------------------------|
+| `:<sha>`  | every push to `main` or a `v*` tag; never changes / при всеки push; никога не се сменя |
+| `:latest` | every merge to `main`; moves / при всяко сливане в `main`; мести се |
+| `:v0.6.0` | push of git tag `v0.6.0` / при push на git таг |
+
+### Deploy the latest / Пускане на последното
+```bash
+docker compose -f compose.prod.yaml pull
+docker compose -f compose.prod.yaml up -d
+curl localhost:8000/ready
+```
+
+### Release a version / Издание с версия
+```bash
+git tag v0.6.0 && git push origin v0.6.0          # CI builds :v0.6.0
+APP_TAG=v0.6.0 docker compose -f compose.prod.yaml up -d
+```
+
+### Roll back / Връщане назад
+Use the full commit SHA of the last working version (or a `v*` tag), never `latest`. / Използвайте пълния SHA на последната работеща версия (или `v*` таг), никога `latest`.
+```bash
+git log --format=%H -5                            # pick a previous commit / изберете предишен комит
+APP_TAG=<sha> docker compose -f compose.prod.yaml up -d
+docker compose -f compose.prod.yaml ps            # IMAGE column shows the tag / колоната IMAGE показва тага
+```
+Notes survive: they live in the `db-data` volume, only the `app` container is replaced. / Бележките остават: те са във volume-а `db-data`, сменя се само контейнерът `app`.

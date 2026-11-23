@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## v0.6.0 - 2026-11-23
+
+- CI pushes the image to GHCR: `:<sha>` on every push, `:latest` from `main`, `:vX.Y.Z` from git tags.
+- Trivy scans the image before push; the pipeline stops on fixable CRITICAL vulnerabilities.
+- `compose.prod.yaml` pulls the image from GHCR (`APP_TAG` picks the version, default `latest`).
+- New `docs` job publishes the MkDocs site to GitHub Pages on every merge to `main`.
+- Runbook: "Deploy and roll back" section.
+
 ## v0.4.0 - 2026-10-26
 
 - `compose.yaml`: the app and PostgreSQL 17 start with one command (`docker compose up -d --build`).
